@@ -16,12 +16,25 @@
 <div id="gate-screen" class="gate-screen">
   <div class="gate-card">
     <div class="gate-brand">
-      <svg class="bunge-logo-gate" viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg">
-        <rect width="120" height="40" rx="6" fill="#C8102E"/>
-        <text x="60" y="27" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="20" fill="#fff" letter-spacing="3">BUNGE</text>
+      <svg class="bunge-logo-gate" viewBox="0 0 240 56" xmlns="http://www.w3.org/2000/svg">
+        <rect width="240" height="56" rx="8" fill="#002F6C"/>
+        <!-- Globe in U -->
+        <circle cx="98" cy="26" r="9" fill="none" stroke="#D4A843" stroke-width="1.5"/>
+        <ellipse cx="98" cy="26" rx="4" ry="9" fill="none" stroke="#D4A843" stroke-width="1"/>
+        <line x1="89" y1="26" x2="107" y2="26" stroke="#D4A843" stroke-width=".8"/>
+        <!-- BUNGE text -->
+        <text x="22" y="36" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="28" fill="#ffffff" letter-spacing="6">B</text>
+        <text x="52" y="36" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="28" fill="#ffffff" letter-spacing="6">U</text>
+        <text x="85" y="36" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="28" fill="#ffffff" letter-spacing="6">N</text>
+        <text x="120" y="36" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="28" fill="#ffffff" letter-spacing="6">G</text>
+        <text x="154" y="36" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="28" fill="#ffffff" letter-spacing="6">E</text>
+        <!-- Gold accent line -->
+        <rect x="20" y="48" width="200" height="2" rx="1" fill="#D4A843"/>
       </svg>
     </div>
-    <h1 class="gate-title">Gestão de Pallets</h1>
+    <div class="gate-pallet-divider">
+      <span>▰ Gestão de Pallets ▰</span>
+    </div>
     <p class="gate-subtitle">Identifique-se para acessar o painel</p>
 
     <!-- Escolha do perfil -->
@@ -68,11 +81,15 @@
 <aside class="sidebar hidden" id="sidebar">
   <div class="sidebar-head">
     <div class="logo">
-      <svg class="bunge-logo-side" viewBox="0 0 90 30" xmlns="http://www.w3.org/2000/svg">
-        <rect width="90" height="30" rx="5" fill="#C8102E"/>
-        <text x="45" y="21" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="15" fill="#fff" letter-spacing="2">BUNGE</text>
+      <svg class="bunge-logo-side" viewBox="0 0 76 26" xmlns="http://www.w3.org/2000/svg">
+        <rect width="76" height="26" rx="4" fill="#002F6C"/>
+        <text x="38" y="18.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="13" fill="#fff" letter-spacing="2.5">BUNGE</text>
+        <rect x="8" y="22" width="60" height="1.2" rx=".6" fill="#D4A843"/>
       </svg>
-      <span class="logo-text">Gestão<br>Pallets</span>
+      <div class="logo-text-wrap">
+        <span class="logo-text">Gestão de<br>Pallets</span>
+        <span class="logo-pallet-icon">▰▰▰</span>
+      </div>
     </div>
   </div>
   <nav class="sidebar-nav">
@@ -107,9 +124,10 @@
   <header class="topbar-mobile">
     <button id="btn-menu" class="btn-icon">☰</button>
     <span class="topbar-brand">
-      <svg class="bunge-logo-topbar" viewBox="0 0 70 24" xmlns="http://www.w3.org/2000/svg">
-        <rect width="70" height="24" rx="4" fill="#C8102E"/>
-        <text x="35" y="17" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="12" fill="#fff" letter-spacing="2">BUNGE</text>
+      <svg class="bunge-logo-topbar" viewBox="0 0 64 22" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="22" rx="3" fill="#002F6C"/>
+        <text x="32" y="15.5" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="11" fill="#fff" letter-spacing="2">BUNGE</text>
+        <rect x="6" y="19" width="52" height="1" rx=".5" fill="#D4A843"/>
       </svg>
       Gestão de Pallets
     </span>
