@@ -689,6 +689,15 @@ tbody tr:hover {
   border-radius: 20px;
   margin-bottom: 6px;
 }
+.visitor-count-badge {
+  display: inline-block;
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--bunge-blue);
+  background: #e0ecff;
+  padding: 5px 14px;
+  border-radius: 20px;
+}
 
 /* ── Utility ─────────────────────────────────────────────── */
 .hidden { display: none !important; }

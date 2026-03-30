@@ -29,6 +29,20 @@ function saveOperators(ops) {
   fs.writeFileSync(OPERATORS_FILE, JSON.stringify(ops, null, 2), "utf-8");
 }
 
+// ── Visitors file ──────────────────────────────────────────────────────────
+const VISITORS_FILE = path.join(__dirname, "visitors.json");
+
+function loadVisitors() {
+  try {
+    if (fs.existsSync(VISITORS_FILE)) return JSON.parse(fs.readFileSync(VISITORS_FILE, "utf-8"));
+  } catch { /* fall through */ }
+  return [];
+}
+
+function saveVisitors(visitors) {
+  fs.writeFileSync(VISITORS_FILE, JSON.stringify(visitors, null, 2), "utf-8");
+}
+
 // ── Session store ──────────────────────────────────────────────────────────
 const sessions = new Map();
 const SESSION_TTL = 8 * 60 * 60 * 1000;
@@ -495,6 +509,34 @@ app.delete("/api/operators/:id", requireAdmin, (req, res) => {
   if (idx === -1) return res.status(404).json({ error: "Operador nao encontrado" });
   ops.splice(idx, 1);
   saveOperators(ops);
+  res.json({ ok: true });
+});
+
+// ── Visitors (registro de visitantes) ──────────────────────────────────────
+app.post("/api/visitors", (req, res) => {
+  const { name } = req.body || {};
+  if (!name || typeof name !== "string" || !name.trim()) return res.status(400).json({ error: "Nome obrigatorio" });
+  const visitors = loadVisitors();
+  const visitor = {
+    id: crypto.randomUUID(),
+    name: String(name).trim().slice(0, 100),
+    enteredAt: new Date().toISOString(),
+  };
+  visitors.push(visitor);
+  // Keep only last 500 visitors
+  if (visitors.length > 500) visitors.splice(0, visitors.length - 500);
+  saveVisitors(visitors);
+  res.json(visitor);
+});
+
+app.get("/api/visitors", requireAdmin, (_req, res) => {
+  const visitors = loadVisitors();
+  // Return most recent first
+  res.json(visitors.slice().reverse());
+});
+
+app.delete("/api/visitors", requireAdmin, (_req, res) => {
+  saveVisitors([]);
   res.json({ ok: true });
 });
 

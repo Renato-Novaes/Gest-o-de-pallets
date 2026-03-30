@@ -146,6 +146,8 @@ function handleGateVisitor(e) {
   isAdmin = false;
   isOperator = false;
   sessionStorage.setItem("visitorName", visitorName);
+  // Register visitor on server
+  api("POST", "/api/visitors", { name: visitorName });
   enterApp();
   applyRole();
   fetchData();
@@ -228,8 +230,11 @@ function applyRole() {
     $("#btn-logout").addEventListener("click", handleLogout);
   }
 
-  // Load operators list for admin
-  if (isAdmin) loadOperatorsList();
+  // Load operators list and visitors for admin
+  if (isAdmin) {
+    loadOperatorsList();
+    loadVisitorsList();
+  }
 }
 
 /* ── API ──────────────────────────────────────────────────── */
@@ -932,6 +937,40 @@ function esc(s) {
   const d = document.createElement("div");
   d.textContent = s || "";
   return d.innerHTML;
+}
+
+/* ── Visitors List (admin) ────────────────────────────────── */
+async function loadVisitorsList() {
+  const body = $("#visitors-body");
+  const empty = $("#visitors-empty");
+  const badge = $("#visitor-count-badge");
+  if (!body) return;
+  const visitors = await api("GET", "/api/visitors");
+  if (!Array.isArray(visitors)) return;
+  body.innerHTML = "";
+  if (badge) badge.textContent = `${visitors.length} visitante${visitors.length !== 1 ? "s" : ""}`;
+  if (visitors.length === 0) {
+    if (empty) empty.classList.remove("hidden");
+    return;
+  }
+  if (empty) empty.classList.add("hidden");
+  visitors.forEach((v) => {
+    const tr = document.createElement("tr");
+    const dt = v.enteredAt ? new Date(v.enteredAt) : null;
+    const dateStr = dt ? dt.toLocaleDateString("pt-BR") + " " + dt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "-";
+    tr.innerHTML = `<td>${esc(v.name)}</td><td>${dateStr}</td>`;
+    body.appendChild(tr);
+  });
+
+  // Bind clear button
+  const clearBtn = $("#btn-clear-visitors");
+  if (clearBtn) {
+    clearBtn.onclick = async () => {
+      if (!confirm("Limpar todo o histórico de visitantes?")) return;
+      await api("DELETE", "/api/visitors");
+      loadVisitorsList();
+    };
+  }
 }
 
 /* ── Operators Management (admin) ────────────────────────── */

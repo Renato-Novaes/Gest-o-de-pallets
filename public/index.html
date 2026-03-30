@@ -485,7 +485,24 @@
 
     <!-- Operators management -->
     <div class="card">
-      <h2>👷 Gerenciar Operadores</h2>
+      <h2>�️ Visitantes</h2>
+      <p class="hint">Pessoas que acessaram o painel como <strong>Visitante</strong>.</p>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span class="visitor-count-badge" id="visitor-count-badge">0 visitantes</span>
+        <button id="btn-clear-visitors" class="btn-del" style="font-size:.78rem">🗑️ Limpar Histórico</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Nome</th><th>Entrada</th></tr></thead>
+          <tbody id="visitors-body"></tbody>
+        </table>
+      </div>
+      <p id="visitors-empty" class="hint" style="text-align:center;padding:12px">Nenhum visitante registrado</p>
+    </div>
+
+    <!-- Operators management -->
+    <div class="card">
+      <h2>�👷 Gerenciar Operadores</h2>
       <p class="hint">Cadastre operadores que poderão acessar apenas a <strong>Contagem Diária de Estoque</strong>.</p>
       <form id="op-form" class="form-row" style="margin-bottom:16px">
         <label>Nome <input type="text" id="op-name" required maxlength="100" placeholder="Nome do operador" /></label>
