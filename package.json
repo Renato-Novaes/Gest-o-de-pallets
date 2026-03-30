@@ -1,0 +1,28 @@
+{
+  "name": "gest-o-de-pallets",
+  "version": "1.0.0",
+  "description": "Painel local para coordenacao logistica de 3 modelos de pallets: - PBR (com logistica reversa mensal e custos por regiao) - CHEP (controle de estoque) - Fumigado (controle de estoque)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Renato-Novaes/Gest-o-de-pallets.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Renato-Novaes/Gest-o-de-pallets/issues"
+  },
+  "homepage": "https://github.com/Renato-Novaes/Gest-o-de-pallets#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "multer": "^2.1.1",
+    "qrcode": "^1.5.4",
+    "xlsx": "^0.18.5"
+  }
+}

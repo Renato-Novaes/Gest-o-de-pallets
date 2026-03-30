@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gestão de Pallets — Painel Corporativo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ── Sidebar ───────────────────────────────────────────── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-head">
+    <div class="logo">
+      <span class="logo-icon">📦</span>
+      <span class="logo-text">Gestão<br>Pallets</span>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <button class="nav-item active" data-page="dashboard">
+      <span class="nav-icon">📊</span> Dashboard
+    </button>
+    <button class="nav-item" data-page="shipments">
+      <span class="nav-icon">🚛</span> Remessas
+    </button>
+    <button class="nav-item" data-page="costs">
+      <span class="nav-icon">💰</span> Custos com Pallets
+    </button>
+    <button class="nav-item" data-page="history">
+      <span class="nav-icon">📋</span> Histórico
+    </button>
+    <button class="nav-item admin-only hidden" data-page="admin">
+      <span class="nav-icon">⚙️</span> Administração
+    </button>
+    <button class="nav-item operator-only hidden" data-page="operator">
+      <span class="nav-icon">📋</span> Contagem
+    </button>
+  </nav>
+  <div class="sidebar-foot" id="auth-area">
+    <button id="btn-show-login" class="btn-login">Entrar</button>
+  </div>
+</aside>
+
+<!-- ── Main area ─────────────────────────────────────────── -->
+<div class="main-wrap">
+
+  <!-- Mobile topbar -->
+  <header class="topbar-mobile">
+    <button id="btn-menu" class="btn-icon">☰</button>
+    <span>Gestão de Pallets</span>
+    <div id="auth-area-mobile"></div>
+  </header>
+
+  <!-- ── Login Modal ─────────────────────────────────────── -->
+  <div id="login-overlay" class="overlay hidden">
+    <form id="login-form" class="modal">
+      <h2>Login</h2>
+      <label>Usuário <input type="text" id="login-user" autocomplete="username" required /></label>
+      <label>Senha <input type="password" id="login-pass" autocomplete="current-password" required /></label>
+      <p id="login-error" class="error-msg hidden">Credenciais inválidas</p>
+      <div class="modal-actions">
+        <button type="submit" class="btn-primary">Entrar</button>
+        <button type="button" id="btn-cancel-login" class="btn-ghost">Cancelar</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       PAGE: DASHBOARD
+       ════════════════════════════════════════════════════════ -->
+  <section class="page active" id="page-dashboard">
+    <div class="page-header">
+      <div>
+        <h1>Dashboard</h1>
+        <p class="subtitle">Visão geral de estoque e logística reversa</p>
+      </div>
+      <p class="date-badge" id="today-badge"></p>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-row">
+      <div class="kpi-card kpi-pbr">
+        <p class="kpi-label">Saldo PBR</p>
+        <p class="kpi-value" id="kpi-pbr-stock">0</p>
+        <p class="kpi-sub"><span class="kpi-sub-label">Pallets para Triar:</span> <span id="kpi-pbr-triar">0</span></p>
+      </div>
+      <div class="kpi-card kpi-chep">
+        <p class="kpi-label">Saldo CHEP</p>
+        <p class="kpi-value" id="kpi-chep-stock">0</p>
+      </div>
+      <div class="kpi-card kpi-fum">
+        <p class="kpi-label">Saldo Fumigado</p>
+        <p class="kpi-value" id="kpi-fumigado-stock">0</p>
+        <p class="kpi-sub"><span class="kpi-sub-label">Pallets para Triar:</span> <span id="kpi-fum-triar">0</span></p>
+      </div>
+      <div class="kpi-card kpi-quebrado">
+        <p class="kpi-label">Quebrados</p>
+        <p class="kpi-value" id="kpi-quebrados-stock">0</p>
+      </div>
+      <div class="kpi-card kpi-reformado">
+        <p class="kpi-label">Reformados</p>
+        <p class="kpi-value" id="kpi-reformados-stock">0</p>
+      </div>
+
+    </div>
+
+    <div id="duplicate-alert" class="alert-banner alert-duplicate hidden"></div>
+    <div id="return-warning" class="alert-banner alert-warning hidden"></div>
+
+    <div class="grid-2" style="grid-template-columns:1fr 1.5fr">
+      <!-- Retorno de Pallets por Mês -->
+      <div class="card">
+        <h2>📊 % Retorno de Pallets por Mês</h2>
+        <p class="subtitle">Saída vs Entrada — meta: 90% / 95% / 98%</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Mês</th><th class="text-right">Saída</th><th class="text-right">Entrada</th><th>% Retorno</th><th>Meta</th></tr></thead>
+            <tbody id="return-month-body"></tbody>
+            <tfoot><tr class="row-total"><td colspan="3"><strong>Total Geral</strong></td><td id="return-total-pct"><strong>0%</strong></td><td></td></tr></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- Custo com Pallets 2026 -->
+      <div class="card">
+        <h2>💰 Custo com Pallets — 2026</h2>
+        <p class="subtitle">Realizado vs BP (Budget Plan) por mês</p>
+        <div class="table-wrap">
+          <table id="cost-year-table">
+            <thead><tr><th>Mês</th><th class="text-right">Realizado</th><th class="text-right">BP</th><th class="text-right">BP x Realizado</th></tr></thead>
+            <tbody id="cost-year-body"></tbody>
+            <tfoot><tr class="row-total"><td><strong>Total</strong></td><td class="text-right" id="cost-year-total-real"><strong>R$ 0</strong></td><td class="text-right" id="cost-year-total-bp"><strong>R$ 0</strong></td><td class="text-right" id="cost-year-total-diff"><strong>R$ 0</strong></td></tr></tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h2>� Previsão de Cargas</h2>
+        <p class="subtitle">Veículos com pallets previstos para chegar na unidade</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th class="text-right">Qtde</th>
+                <th>Previsão</th>
+                <th>Obs</th>
+                <th class="col-action admin-only hidden">Ação</th>
+              </tr>
+            </thead>
+            <tbody id="forecast-body"></tbody>
+          </table>
+        </div>
+        <p id="forecast-empty" class="hint" style="text-align:center;padding:16px">Nenhuma carga prevista</p>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <h2>Remessas por UF</h2>
+          <select id="uf-month-filter" class="input-sm" style="padding:4px 8px;border-radius:6px;border:1px solid #d1d5db;font-size:.8rem">
+            <option value="TODOS">Todos os meses</option>
+          </select>
+        </div>
+        <canvas id="ufChart" height="200"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+       PAGE: SHIPMENTS (remessas / base de clientes)
+       ════════════════════════════════════════════════════════ -->
+  <section class="page" id="page-shipments">
+    <div class="page-header">
+      <div>
+        <h1>Remessas</h1>
+        <p class="subtitle">Dados de clientes, transportadoras e placas</p>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card filter-bar">
+      <label>Direção <select id="ship-filter-dir"><option value="">Todas</option><option value="saida">Saída</option><option value="entrada">Entrada</option></select></label>
+      <label>Tipo <select id="ship-filter-type"><option value="">Todos</option><option value="PBR">PBR</option><option value="CHEP">CHEP</option><option value="FUMIGADO">Fumigado</option></select></label>
+      <label>UF <input type="text" id="ship-filter-uf" placeholder="Ex: SP" maxlength="2" /></label>
+      <label>Mês <input type="text" id="ship-filter-mes" placeholder="JANEIRO" /></label>
+      <label>Busca <input type="text" id="ship-filter-search" placeholder="Cliente, transportador ou placa" /></label>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table class="table-sm">
+          <thead><tr>
+            <th>Dir.</th>
+            <th>Doc.Fat.</th><th>NF</th><th>Data Fat.</th><th>Mês</th><th>Cód.Cliente</th>
+            <th>Cliente</th><th>Cidade</th><th>UF</th><th>Rede</th><th>DT</th>
+            <th>Transportador</th><th>Placa</th><th>Qtde</th><th>Avariados</th><th>Descarte</th><th>Romaneio</th>
+            <th>Tipo</th>
+            <th class="col-action admin-only hidden">Ação</th>
+          </tr></thead>
+          <tbody id="shipments-body"></tbody>
+        </table>
+      </div>
+      <p class="table-count" id="ship-count"></p>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+       PAGE: COSTS
+       ════════════════════════════════════════════════════════ -->
+  <section class="page" id="page-costs">
+    <div class="page-header">
+      <div>
+        <h1>Custos com Pallets</h1>
+        <p class="subtitle">Custo de pallets por região e totais do mês</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h2>Custo por Região</h2>
+        <div id="freight-view" class="stat-grid"></div>
+      </div>
+      <div class="card">
+        <h2>Custo com Pallets Mensal por Região</h2>
+        <canvas id="freightChart" height="200"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Resumo Mensal de Custos</h2>
+      <div class="stat-grid wide">
+        <p>Total saídas PBR no mês</p><strong id="cost-pbr-out">0</strong>
+        <p>Custo total pallets PBR</p><strong id="cost-freight-total">R$ 0</strong>
+        <p>Custo médio por pallet</p><strong id="cost-avg">R$ 0</strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+       PAGE: HISTORY
+       ════════════════════════════════════════════════════════ -->
+  <section class="page" id="page-history">
+    <div class="page-header">
+      <div>
+        <h1>Histórico de Movimentações</h1>
+        <p class="subtitle">Entradas, saídas e retornos diários</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Data</th><th>Tipo</th><th>Operação</th><th>Quantidade</th><th>Região</th>
+            <th class="col-action admin-only hidden">Ação</th>
+          </tr></thead>
+          <tbody id="history-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+       PAGE: ADMIN
+       ════════════════════════════════════════════════════════ -->
+  <section class="page admin-only hidden" id="page-admin">
+    <div class="page-header">
+      <div>
+        <h1>Administração</h1>
+        <p class="subtitle">Lançamentos, importação e configuração</p>
+      </div>
+    </div>
+
+    <!-- Stock count form (contagem manual diária) -->
+    <div class="card">
+      <h2>📋 Contagem Diária de Estoque</h2>
+      <p class="hint">Insira a contagem física realizada hoje. Os valores serão exibidos no Dashboard.</p>
+      <form id="stock-count-form" class="form-grid">
+        <label>PBR <input type="number" id="stock-pbr" min="0" value="0" required /></label>
+        <label>CHEP <input type="number" id="stock-chep" min="0" value="0" required /></label>
+        <label>Fumigado <input type="number" id="stock-fumigado" min="0" value="0" required /></label>
+        <label>Quebrados <input type="number" id="stock-quebrados" min="0" value="0" required /></label>
+        <label>Reformados <input type="number" id="stock-reformados" min="0" value="0" required /></label>
+        <label>Triar PBR <input type="number" id="stock-triar-pbr" min="0" value="0" required /></label>
+        <label>Triar Fumigado <input type="number" id="stock-triar-fumigado" min="0" value="0" required /></label>
+        <button type="submit" class="btn-primary">Salvar Contagem</button>
+      </form>
+      <p id="stock-count-result" class="hint"></p>
+    </div>
+
+    <!-- Monthly costs form -->
+    <div class="card">
+      <h2>💰 Custo Mensal com Pallets (Realizado e BP)</h2>
+      <p class="hint">Informe o custo <strong>Realizado</strong> e o <strong>BP (Budget Plan)</strong> de cada mês. Os valores aparecerão no Dashboard.</p>
+      <div class="table-wrap">
+        <table id="monthly-cost-form-table">
+          <thead><tr><th>Mês</th><th>Realizado (R$)</th><th>BP (R$)</th></tr></thead>
+          <tbody id="monthly-cost-form-body"></tbody>
+        </table>
+      </div>
+      <button type="button" id="btn-save-monthly-costs" class="btn-primary" style="margin-top:12px">Salvar Custos Mensais</button>
+      <p id="monthly-cost-result" class="hint"></p>
+    </div>
+
+    <!-- Entry form -->
+    <div class="card">
+      <h2>Lançamento Diário de Movimentação</h2>
+      <form id="entry-form" class="form-row">
+        <label>Data <input type="date" id="entry-date" required /></label>
+        <label>Tipo <select id="entry-type"><option value="PBR">PBR</option><option value="CHEP">CHEP</option><option value="FUMIGADO">Fumigado</option></select></label>
+        <label>Operação <select id="entry-operation"><option value="entrada">Entrada</option><option value="saida">Saída</option><option value="retorno">Retorno PBR</option></select></label>
+        <label>Quantidade <input type="number" id="entry-qty" min="1" required /></label>
+        <label id="region-field">Região <select id="entry-region"><option value="Sudeste">Sudeste</option><option value="Sul">Sul</option><option value="Nordeste">Nordeste</option><option value="Norte">Norte</option><option value="Centro-Oeste">Centro-Oeste</option></select></label>
+        <button type="submit" class="btn-primary">Adicionar</button>
+      </form>
+    </div>
+
+    <!-- Shipment form -->
+    <div class="card">
+      <h2>Cadastrar Remessa Manual</h2>
+      <form id="shipment-form" class="form-grid">
+        <label>Direção <select id="ship-direction"><option value="saida">Saída</option><option value="entrada">Entrada</option></select></label>
+        <label>Doc. Faturamento <input type="text" id="ship-docfat" maxlength="30" /></label>
+        <label>NF <input type="text" id="ship-nf" maxlength="20" /></label>
+        <label>Data Faturamento <input type="date" id="ship-date" required /></label>
+        <label>Mês <input type="text" id="ship-mes" placeholder="JANEIRO" maxlength="20" /></label>
+        <label>Cód. Cliente <input type="text" id="ship-codcliente" maxlength="30" /></label>
+        <label>Cliente <input type="text" id="ship-cliente" required maxlength="200" /></label>
+        <label>Cidade <input type="text" id="ship-cidade" maxlength="100" /></label>
+        <label>UF <input type="text" id="ship-uf" maxlength="2" placeholder="SP" /></label>
+        <label>Rede <input type="text" id="ship-rede" maxlength="200" /></label>
+        <label>DT <input type="text" id="ship-dt" maxlength="30" /></label>
+        <label>Transportador <input type="text" id="ship-transp" maxlength="200" /></label>
+        <label>Placa <input type="text" id="ship-placa" maxlength="10" placeholder="ABC1D23" /></label>
+        <label>Qtde <input type="number" id="ship-qty" min="0" required /></label>
+        <label>Avariados <input type="number" id="ship-avariados" min="0" value="0" /></label>
+        <label>Descarte <input type="number" id="ship-descarte" min="0" value="0" /></label>
+        <label>Nº Romaneio <input type="text" id="ship-romaneio" maxlength="30" /></label>
+        <label>Tipo <select id="ship-type"><option value="PBR">PBR</option><option value="CHEP">CHEP</option><option value="FUMIGADO">Fumigado</option></select></label>
+        <button type="submit" class="btn-primary">Cadastrar</button>
+      </form>
+    </div>
+
+    <!-- Upload: Saída -->
+    <div class="card">
+      <h2>📤 Importar Base de SAÍDA</h2>
+      <p class="hint">Planilha com os pallets que <strong>saíram</strong>. Colunas: DocumentoFaturamento, NF, DataFaturamento, NomeMes, CodCliente, NomeCliente, CidadeCliente, UFCliente, Rede, DT, NomeTransportador, Placa, Qtde, QtdAvariados, QtdDescarte, NRomaneio</p>
+      <form id="upload-form-saida" class="form-row">
+        <label>Tipo de Pallet <select id="upload-type-saida"><option value="PBR">PBR</option><option value="CHEP">CHEP</option><option value="FUMIGADO">Fumigado</option></select></label>
+        <label>Arquivo (.xlsx / .xls / .csv) <input type="file" id="upload-file-saida" accept=".xlsx,.xls,.csv" required /></label>
+        <button type="submit" class="btn-primary">Importar Saídas</button>
+      </form>
+      <p id="upload-result-saida" class="hint"></p>
+    </div>
+
+    <!-- Upload: Entrada -->
+    <div class="card">
+      <h2>📥 Importar Base de ENTRADA (Retorno)</h2>
+      <p class="hint">Planilha com os pallets que <strong>retornaram / entraram</strong>. Mesmas colunas da base de saída.</p>
+      <form id="upload-form-entrada" class="form-row">
+        <label>Tipo de Pallet <select id="upload-type-entrada"><option value="PBR">PBR</option><option value="CHEP">CHEP</option><option value="FUMIGADO">Fumigado</option></select></label>
+        <label>Arquivo (.xlsx / .xls / .csv) <input type="file" id="upload-file-entrada" accept=".xlsx,.xls,.csv" required /></label>
+        <button type="submit" class="btn-primary">Importar Entradas</button>
+      </form>
+      <p id="upload-result-entrada" class="hint"></p>
+    </div>
+
+    <!-- Freight config -->
+    <div class="card">
+      <h2>Configurar Custos de Frete por Região</h2>
+      <form id="freight-form" class="form-row"></form>
+    </div>
+
+    <!-- Cargo Forecasts -->
+    <div class="card">
+      <h2>🚚 Previsão de Cargas</h2>
+      <p class="hint">Cadastre veículos com pallets previstos para chegar na unidade.</p>
+      <form id="forecast-form" class="form-row" style="margin-bottom:16px">
+        <label>Tipo
+          <select id="fc-tipo">
+            <option value="compra">Pallets de Compra</option>
+            <option value="devolucao">Pallets Devolução</option>
+          </select>
+        </label>
+        <label>Quantidade <input type="number" id="fc-qtde" min="1" required /></label>
+        <label>Previsão de Chegada <input type="date" id="fc-previsao" required /></label>
+        <label>Observação <input type="text" id="fc-obs" maxlength="200" placeholder="(opcional)" /></label>
+        <button type="submit" class="btn-primary">Cadastrar</button>
+      </form>
+      <p id="fc-result" class="hint"></p>
+    </div>
+
+    <!-- Share / QR Code -->
+    <div class="card">
+      <h2>🔗 Compartilhar Dashboard</h2>
+      <p class="hint">Compartilhe o link ou QR Code abaixo para que outras pessoas visualizem o painel <strong>sem precisar fazer login</strong>.</p>
+      <div class="share-section">
+        <button id="btn-generate-qr" class="btn-primary">Gerar Link e QR Code</button>
+        <div id="share-content" class="hidden">
+          <div class="share-url-row">
+            <label class="share-label">Link público:</label>
+            <div class="share-url-input-wrap">
+              <input type="text" id="share-url" readonly class="share-url-input" />
+              <button id="btn-copy-url" class="btn-primary btn-copy">📋 Copiar</button>
+            </div>
+          </div>
+          <div class="share-qr-wrap">
+            <p class="share-label">QR Code — escaneie com a câmera do celular:</p>
+            <img id="share-qr-img" alt="QR Code" class="share-qr-img" />
+          </div>
+          <p id="share-hint" class="hint" style="margin-top:12px"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Operators management -->
+    <div class="card">
+      <h2>👷 Gerenciar Operadores</h2>
+      <p class="hint">Cadastre operadores que poderão acessar apenas a <strong>Contagem Diária de Estoque</strong>.</p>
+      <form id="op-form" class="form-row" style="margin-bottom:16px">
+        <label>Nome <input type="text" id="op-name" required maxlength="100" placeholder="Nome do operador" /></label>
+        <label>Usuário <input type="text" id="op-user" required maxlength="50" placeholder="Login" /></label>
+        <label>Senha <input type="text" id="op-pass" required maxlength="100" placeholder="Senha" /></label>
+        <button type="submit" class="btn-primary">Cadastrar Operador</button>
+      </form>
+      <p id="op-result" class="hint"></p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Nome</th><th>Usuário</th><th>Senha</th><th>Criado em</th><th>Ação</th></tr></thead>
+          <tbody id="operators-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+       PAGE: OPERATOR (contagem diária)
+       ════════════════════════════════════════════════════════ -->
+  <section class="page operator-only hidden" id="page-operator">
+    <div class="page-header">
+      <div>
+        <h1>Contagem Diária de Estoque</h1>
+        <p class="subtitle">Preencha a contagem física realizada hoje</p>
+      </div>
+    </div>
+    <div class="card">
+      <h2>📋 Contagem Diária de Estoque</h2>
+      <p class="hint">Insira a contagem física realizada hoje. Os valores serão exibidos no Dashboard.</p>
+      <form id="stock-count-form-op" class="form-grid">
+        <label>PBR <input type="number" id="stock-pbr-op" min="0" value="0" required /></label>
+        <label>CHEP <input type="number" id="stock-chep-op" min="0" value="0" required /></label>
+        <label>Fumigado <input type="number" id="stock-fumigado-op" min="0" value="0" required /></label>
+        <label>Quebrados <input type="number" id="stock-quebrados-op" min="0" value="0" required /></label>
+        <label>Reformados <input type="number" id="stock-reformados-op" min="0" value="0" required /></label>
+        <label>Triar PBR <input type="number" id="stock-triar-pbr-op" min="0" value="0" required /></label>
+        <label>Triar Fumigado <input type="number" id="stock-triar-fumigado-op" min="0" value="0" required /></label>
+        <button type="submit" class="btn-primary">Salvar Contagem</button>
+      </form>
+      <p id="stock-count-result-op" class="hint"></p>
+    </div>
+  </section>
+
+  <!-- Viewer notice -->
+  <div id="viewer-notice" class="notice">
+    Você está visualizando como <strong>visitante</strong>. Para gerenciar dados, entre como administrador na barra lateral.
+  </div>
+
+</div><!-- /main-wrap -->
+
+<script src="app.js"></script>
+</body>
+</html>
