@@ -1,9 +1,11 @@
 :root {
   --bg: #e8ecf1;
   --surface: #ffffff;
-  --sidebar: #0f172a;
-  --sidebar-hover: #1e293b;
-  --sidebar-active: #334155;
+  --bunge-red: #C8102E;
+  --bunge-dark: #1a1a2e;
+  --sidebar: #1a1a2e;
+  --sidebar-hover: #2a2a3e;
+  --sidebar-active: #3a3a4e;
   --ink: #1e293b;
   --subtle: #64748b;
   --border: #e2e8f0;
@@ -47,7 +49,7 @@ body {
 .sidebar {
   width: 240px;
   min-height: 100vh;
-  background: linear-gradient(180deg, #0f172a 0%, #1a2744 100%);
+  background: linear-gradient(180deg, var(--bunge-dark) 0%, #16213e 100%);
   color: #cbd5e1;
   display: flex;
   flex-direction: column;
@@ -515,7 +517,7 @@ tbody tr:hover {
   align-items: center;
   justify-content: center;
   background:
-    linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+    linear-gradient(135deg, #1a1a2e 0%, #C8102E 50%, #1a1a2e 100%);
   background-size: 400% 400%;
   animation: gateGradient 8s ease infinite;
 }
@@ -532,10 +534,30 @@ tbody tr:hover {
   text-align: center;
   box-shadow: 0 24px 64px rgba(0,0,0,.35);
   animation: modalIn .5s cubic-bezier(.4,0,.2,1);
+  border-top: 4px solid var(--bunge-red);
 }
-.gate-logo {
-  font-size: 3rem;
-  margin-bottom: 8px;
+.gate-brand {
+  margin-bottom: 16px;
+}
+.bunge-logo-gate {
+  width: 160px;
+  height: auto;
+}
+.bunge-logo-side {
+  width: 80px;
+  height: auto;
+  flex-shrink: 0;
+}
+.bunge-logo-topbar {
+  width: 60px;
+  height: auto;
+  vertical-align: middle;
+}
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
 }
 .gate-title {
   font-size: 1.5rem;

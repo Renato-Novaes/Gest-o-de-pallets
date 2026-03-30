@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Gestão de Pallets — Painel Corporativo</title>
+  <title>Bunge — Gestão de Pallets</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -15,7 +15,12 @@
 <!-- ── Tela de Identificação (obrigatória) ───────────────── -->
 <div id="gate-screen" class="gate-screen">
   <div class="gate-card">
-    <div class="gate-logo">📦</div>
+    <div class="gate-brand">
+      <svg class="bunge-logo-gate" viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg">
+        <rect width="120" height="40" rx="6" fill="#C8102E"/>
+        <text x="60" y="27" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="20" fill="#fff" letter-spacing="3">BUNGE</text>
+      </svg>
+    </div>
     <h1 class="gate-title">Gestão de Pallets</h1>
     <p class="gate-subtitle">Identifique-se para acessar o painel</p>
 
@@ -63,7 +68,10 @@
 <aside class="sidebar hidden" id="sidebar">
   <div class="sidebar-head">
     <div class="logo">
-      <span class="logo-icon">📦</span>
+      <svg class="bunge-logo-side" viewBox="0 0 90 30" xmlns="http://www.w3.org/2000/svg">
+        <rect width="90" height="30" rx="5" fill="#C8102E"/>
+        <text x="45" y="21" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="15" fill="#fff" letter-spacing="2">BUNGE</text>
+      </svg>
       <span class="logo-text">Gestão<br>Pallets</span>
     </div>
   </div>
@@ -98,7 +106,13 @@
   <!-- Mobile topbar -->
   <header class="topbar-mobile">
     <button id="btn-menu" class="btn-icon">☰</button>
-    <span>Gestão de Pallets</span>
+    <span class="topbar-brand">
+      <svg class="bunge-logo-topbar" viewBox="0 0 70 24" xmlns="http://www.w3.org/2000/svg">
+        <rect width="70" height="24" rx="4" fill="#C8102E"/>
+        <text x="35" y="17" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="12" fill="#fff" letter-spacing="2">BUNGE</text>
+      </svg>
+      Gestão de Pallets
+    </span>
     <div id="auth-area-mobile"></div>
   </header>
 
@@ -109,7 +123,7 @@
     <div class="page-header">
       <div>
         <h1>Dashboard</h1>
-        <p class="subtitle">Visão geral de estoque e logística reversa</p>
+        <p class="subtitle">Bunge — Visão geral de estoque e logística reversa</p>
       </div>
       <p class="date-badge" id="today-badge"></p>
     </div>
