@@ -6,6 +6,8 @@
 let authToken = sessionStorage.getItem("authToken") || null;
 let isAdmin = false;
 let isOperator = false;
+let isVisitor = sessionStorage.getItem("visitorName") ? true : false;
+let visitorName = sessionStorage.getItem("visitorName") || "";
 let data = { entries: [], shipments: [], freightByRegion: {} };
 let ufChart, freightChart;
 
@@ -16,11 +18,14 @@ const $$ = (s) => document.querySelectorAll(s);
 (async () => {
   setToday();
   bindNav();
-  bindAuth();
+  bindGate();
   bindForms();
   bindFilters();
   await checkAuth();
-  await fetchData();
+  if (isAdmin || isOperator || isVisitor) {
+    enterApp();
+    await fetchData();
+  }
   connectSSE();
 })();
 
@@ -73,58 +78,126 @@ function setToday() {
   if (fcDate) fcDate.valueAsDate = now;
 }
 
-/* ── Auth ─────────────────────────────────────────────────── */
-function bindAuth() {
-  $("#btn-show-login").addEventListener("click", openLogin);
-  $("#btn-cancel-login").addEventListener("click", closeLogin);
-  $("#login-overlay").addEventListener("click", (e) => { if (e.target === $("#login-overlay")) closeLogin(); });
-  $("#login-form").addEventListener("submit", handleLogin);
+/* ── Gate (identification screen) ─────────────────────────── */
+let gateRole = null;
+
+function bindGate() {
+  // Role selection buttons
+  $$(".gate-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      gateRole = btn.dataset.role;
+      $("#gate-choice").classList.add("hidden");
+      if (gateRole === "visitor") {
+        $("#gate-visitor-form").classList.remove("hidden");
+        $("#gate-visitor-name").focus();
+      } else {
+        const title = gateRole === "admin" ? "🔑 Login Administrador" : "👷 Login Operador";
+        $("#gate-login-title").textContent = title;
+        $("#gate-login-form").classList.remove("hidden");
+        $("#gate-user").focus();
+      }
+    });
+  });
+
+  // Back buttons
+  $("#gate-back-login").addEventListener("click", gateBackToChoice);
+  $("#gate-back-visitor").addEventListener("click", gateBackToChoice);
+
+  // Login form (admin/operator)
+  $("#gate-login-form").addEventListener("submit", handleGateLogin);
+
+  // Visitor form
+  $("#gate-visitor-form").addEventListener("submit", handleGateVisitor);
 }
 
-function openLogin() {
-  $("#login-overlay").classList.remove("hidden");
-  $("#login-user").focus();
+function gateBackToChoice() {
+  $("#gate-login-form").classList.add("hidden");
+  $("#gate-visitor-form").classList.add("hidden");
+  $("#gate-login-error").classList.add("hidden");
+  $("#gate-login-form").reset();
+  $("#gate-visitor-form").reset();
+  $("#gate-choice").classList.remove("hidden");
 }
 
-function closeLogin() {
-  $("#login-overlay").classList.add("hidden");
-  $("#login-error").classList.add("hidden");
-  $("#login-form").reset();
-}
-
-async function handleLogin(e) {
+async function handleGateLogin(e) {
   e.preventDefault();
-  $("#login-error").classList.add("hidden");
-  const res = await api("POST", "/api/login", { user: $("#login-user").value, pass: $("#login-pass").value });
+  $("#gate-login-error").classList.add("hidden");
+  const res = await api("POST", "/api/login", { user: $("#gate-user").value, pass: $("#gate-pass").value });
   if (res.token) {
     authToken = res.token;
     sessionStorage.setItem("authToken", authToken);
     isAdmin = res.role === "admin";
     isOperator = res.role === "operator";
-    closeLogin();
+    isVisitor = false;
+    enterApp();
     applyRole();
     await fetchData();
   } else {
-    $("#login-error").classList.remove("hidden");
+    $("#gate-login-error").classList.remove("hidden");
   }
 }
 
-async function handleLogout() {
-  await api("POST", "/api/logout");
+function handleGateVisitor(e) {
+  e.preventDefault();
+  const name = $("#gate-visitor-name").value.trim();
+  if (!name) return;
+  visitorName = name;
+  isVisitor = true;
+  isAdmin = false;
+  isOperator = false;
+  sessionStorage.setItem("visitorName", visitorName);
+  enterApp();
+  applyRole();
+  fetchData();
+}
+
+function enterApp() {
+  $("#gate-screen").classList.add("hidden");
+  $("#sidebar").classList.remove("hidden");
+  $("#main-wrap").classList.remove("hidden");
+}
+
+function exitToGate() {
   authToken = null;
   isAdmin = false;
   isOperator = false;
+  isVisitor = false;
+  visitorName = "";
   sessionStorage.removeItem("authToken");
-  applyRole();
+  sessionStorage.removeItem("visitorName");
+  $("#gate-screen").classList.remove("hidden");
+  $("#sidebar").classList.add("hidden");
+  $("#main-wrap").classList.add("hidden");
+  gateBackToChoice();
+}
+
+async function handleLogout() {
+  if (authToken) await api("POST", "/api/logout");
+  exitToGate();
 }
 
 async function checkAuth() {
-  if (!authToken) { isAdmin = false; isOperator = false; applyRole(); return; }
-  const res = await api("GET", "/api/me");
-  isAdmin = res.admin === true;
-  isOperator = res.operator === true;
-  if (!isAdmin && !isOperator) { authToken = null; sessionStorage.removeItem("authToken"); }
-  applyRole();
+  // Check if there's a saved auth token
+  if (authToken) {
+    const res = await api("GET", "/api/me");
+    isAdmin = res.admin === true;
+    isOperator = res.operator === true;
+    if (!isAdmin && !isOperator) {
+      authToken = null;
+      sessionStorage.removeItem("authToken");
+    } else {
+      applyRole();
+      return;
+    }
+  }
+  // Check if visitor
+  if (isVisitor && visitorName) {
+    applyRole();
+    return;
+  }
+  // Nothing — stay on gate
+  isAdmin = false;
+  isOperator = false;
 }
 
 function applyRole() {
@@ -147,9 +220,12 @@ function applyRole() {
       <button class="btn-logout-side" id="btn-logout">Sair</button>
     `;
     $("#btn-logout").addEventListener("click", handleLogout);
-  } else {
-    authArea.innerHTML = `<button id="btn-show-login" class="btn-login">Entrar</button>`;
-    $("#btn-show-login").addEventListener("click", openLogin);
+  } else if (isVisitor) {
+    authArea.innerHTML = `
+      <span class="visitor-badge">👁️ ${esc(visitorName)}</span>
+      <button class="btn-logout-side" id="btn-logout">Sair</button>
+    `;
+    $("#btn-logout").addEventListener("click", handleLogout);
   }
 
   // Load operators list for admin

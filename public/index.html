@@ -12,8 +12,55 @@
 </head>
 <body>
 
+<!-- ── Tela de Identificação (obrigatória) ───────────────── -->
+<div id="gate-screen" class="gate-screen">
+  <div class="gate-card">
+    <div class="gate-logo">📦</div>
+    <h1 class="gate-title">Gestão de Pallets</h1>
+    <p class="gate-subtitle">Identifique-se para acessar o painel</p>
+
+    <!-- Escolha do perfil -->
+    <div id="gate-choice" class="gate-choices">
+      <button class="gate-btn gate-btn-admin" data-role="admin">
+        <span class="gate-btn-icon">🔑</span>
+        <span class="gate-btn-label">Administrador</span>
+      </button>
+      <button class="gate-btn gate-btn-operator" data-role="operator">
+        <span class="gate-btn-icon">👷</span>
+        <span class="gate-btn-label">Operador</span>
+      </button>
+      <button class="gate-btn gate-btn-visitor" data-role="visitor">
+        <span class="gate-btn-icon">👁️</span>
+        <span class="gate-btn-label">Visitante</span>
+      </button>
+    </div>
+
+    <!-- Form login (admin/operador) -->
+    <form id="gate-login-form" class="gate-form hidden">
+      <p id="gate-login-title" class="gate-form-title"></p>
+      <label>Usuário <input type="text" id="gate-user" autocomplete="username" required /></label>
+      <label>Senha <input type="password" id="gate-pass" autocomplete="current-password" required /></label>
+      <p id="gate-login-error" class="error-msg hidden">Credenciais inválidas</p>
+      <div class="gate-form-actions">
+        <button type="submit" class="btn-primary">Entrar</button>
+        <button type="button" id="gate-back-login" class="btn-ghost">Voltar</button>
+      </div>
+    </form>
+
+    <!-- Form visitante (só nome) -->
+    <form id="gate-visitor-form" class="gate-form hidden">
+      <p class="gate-form-title">Identificação de Visitante</p>
+      <label>Seu nome <input type="text" id="gate-visitor-name" required maxlength="100" placeholder="Digite seu nome" /></label>
+      <div class="gate-form-actions">
+        <button type="submit" class="btn-primary">Visualizar Painel</button>
+        <button type="button" id="gate-back-visitor" class="btn-ghost">Voltar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- ── Sidebar ───────────────────────────────────────────── -->
-<aside class="sidebar" id="sidebar">
+<aside class="sidebar hidden" id="sidebar">
   <div class="sidebar-head">
     <div class="logo">
       <span class="logo-icon">📦</span>
@@ -46,7 +93,7 @@
 </aside>
 
 <!-- ── Main area ─────────────────────────────────────────── -->
-<div class="main-wrap">
+<div class="main-wrap hidden" id="main-wrap">
 
   <!-- Mobile topbar -->
   <header class="topbar-mobile">
@@ -54,20 +101,6 @@
     <span>Gestão de Pallets</span>
     <div id="auth-area-mobile"></div>
   </header>
-
-  <!-- ── Login Modal ─────────────────────────────────────── -->
-  <div id="login-overlay" class="overlay hidden">
-    <form id="login-form" class="modal">
-      <h2>Login</h2>
-      <label>Usuário <input type="text" id="login-user" autocomplete="username" required /></label>
-      <label>Senha <input type="password" id="login-pass" autocomplete="current-password" required /></label>
-      <p id="login-error" class="error-msg hidden">Credenciais inválidas</p>
-      <div class="modal-actions">
-        <button type="submit" class="btn-primary">Entrar</button>
-        <button type="button" id="btn-cancel-login" class="btn-ghost">Cancelar</button>
-      </div>
-    </form>
-  </div>
 
   <!-- ════════════════════════════════════════════════════════
        PAGE: DASHBOARD

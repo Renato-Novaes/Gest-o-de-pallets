@@ -506,6 +506,133 @@ tbody tr:hover {
   border-bottom: 3px solid rgba(37,99,235,.15);
 }
 
+/* ── Gate (identification screen) ────────────────────────── */
+.gate-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+  background-size: 400% 400%;
+  animation: gateGradient 8s ease infinite;
+}
+@keyframes gateGradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.gate-card {
+  background: var(--surface);
+  border-radius: 20px;
+  padding: 40px 36px;
+  width: 420px;
+  max-width: 92vw;
+  text-align: center;
+  box-shadow: 0 24px 64px rgba(0,0,0,.35);
+  animation: modalIn .5s cubic-bezier(.4,0,.2,1);
+}
+.gate-logo {
+  font-size: 3rem;
+  margin-bottom: 8px;
+}
+.gate-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.gate-subtitle {
+  color: var(--subtle);
+  font-size: .9rem;
+  margin-bottom: 28px;
+}
+.gate-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.gate-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 16px 20px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: all .2s ease;
+  text-align: left;
+}
+.gate-btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(37,99,235,.15);
+}
+.gate-btn-icon {
+  font-size: 1.5rem;
+}
+.gate-btn-label {
+  font: 600 1rem 'Inter', sans-serif;
+  color: var(--ink);
+}
+.gate-btn-admin:hover { border-color: var(--green); background: var(--green-light); }
+.gate-btn-operator:hover { border-color: var(--primary); background: var(--primary-light); }
+.gate-btn-visitor:hover { border-color: var(--purple); background: var(--purple-light); }
+
+.gate-form {
+  text-align: left;
+  margin-top: 8px;
+}
+.gate-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+  font-size: .85rem;
+  color: var(--subtle);
+  font-weight: 500;
+}
+.gate-form input {
+  font: inherit;
+  padding: 11px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: .92rem;
+}
+.gate-form input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.15);
+}
+.gate-form-title {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 18px;
+  text-align: center;
+  color: var(--ink);
+}
+.gate-form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+.gate-form-actions button { flex: 1; }
+
+.visitor-badge {
+  display: inline-block;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--purple);
+  background: var(--purple-light);
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 6px;
+}
+
 /* ── Utility ─────────────────────────────────────────────── */
 .hidden { display: none !important; }
 
